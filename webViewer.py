@@ -1,8 +1,10 @@
 from bs4 import BeautifulSoup
 import requests
+import re
 #           newegg
-#website = {"https://www.newegg.ca/p/pl?N=100007708%20601469156"}
-website = {"https://www.newegg.ca/p/pl?N=100007708%20601432392"}
+#website = {"https://www.newegg.ca/p/pl?N=100007708%20601469156", "https://www.canadacomputers.com/en/search?s=rtx+5080", "https://www.canadacomputers.com/en/search?s=rtx+5080"}\
+    #for testing putposes
+website = {"https://www.canadacomputers.com/en/search?s=rtx+4060"}
 
 
 class web:
@@ -36,9 +38,30 @@ class web:
             title = parent.find('a',class_='item-title').text
             #adds it to a list
             self.Instock.append((title,price,url)) 
+    def forCC(self,data):
+        #gets the availble tage of all items
+        for inStock in data.find_all(class_="available-tag"):
+            #if its available for online delivery
+            if inStock.get('data-stock_availability_online') == '1':
+                #get the parent of the item
+                parent = inStock.find_parent('div',class_="js-product product col-sm-6 col-xl-3")
+                #find the url
+                url = parent.find('a',class_='thumbnail product-thumbnail').get('href')
+                #find the title
+                title = parent.find('h2',class_='h3 product-title mb-1').find('a').text
+                #find the price and chang the format
+                price = parent.find('span', {'aria-label': 'Price'}).text
+                price = re.sub(r'[^0-9.,]', '', price)
+                #add it to the list
+                self.Instock.append((title,price,url))
+            else:
+                continue
     def checkForStockedItems(self):
         for count, data in self.webData.items():
             if 'Newegg' in data.title.string:        
                 self.forNewegg(data)
-obj = web()
-obj.checkForStockedItems()
+                
+            if 'Canada Computers & Electronics' in data.title.string:
+                self.forCC(data)
+            else:
+                print("Unknown Website")
