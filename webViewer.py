@@ -12,9 +12,10 @@ from googleapiclient.errors import HttpError
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import textwrap
-website = {"https://www.newegg.ca/p/pl?N=100007708%20601432392%20601408875%20601432394%20601408874&d=rtx+5060&isdeptsrh=1","https://www.newegg.ca/p/pl?N=100007708%20601469156",
-        "https://www.canadacomputers.com/en/search?s=rtx+5080","https://www.canadacomputers.com/en/search?s=rtx+5090",'https://www.canadacomputers.com/en/search?s=rtx+5070+ti',"https://www.canadacomputers.com/en/search?s=rtx+5070" , "https://www.newegg.ca/p/pl?d=rtx+5070","https://www.newegg.ca/p/pl?d=rtx+5070+ti"
-       }
+website = {r'https://www.newegg.ca/p/pl?N=100007708%201469156%20601469156',r'https://www.newegg.ca/p/pl?N=100007708%201469156%20601408874%20601432394%20601408875%20601432392',
+           r'https://www.vuugo.com/category/video-cards-563/?min-price=0&max-price=3992&ordering=newest&GPU=GeForce+RTX+4000+Series&GPU=GeForce+RTX+5000+Series',r'https://www.newegg.ca/p/pl?d=rtx+5070+ti',r'https://www.newegg.ca/p/pl?d=rtx+5070'
+           ,r'https://www.canadacomputers.com/en/914/graphics-cards?q=GPU-GeForce+RTX+4090-GeForce+RTX+4070+Ti+Super',r'https://www.canadacomputers.com/en/search?s=rtx+5070+ti',
+           r'https://www.canadacomputers.com/en/search?s=rtx+5080'}
 class web:
 
     def __init__(self):
@@ -201,7 +202,6 @@ class sendMessage:
         msg = MIMEText(self.message)
         message.attach(msg)
         raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode('utf-8')
-        create_message = {"raw": raw_message}
         try:
             #sends message
             send_message = self.service.users().messages().send(userId="me", body={'raw': raw_message}).execute()
