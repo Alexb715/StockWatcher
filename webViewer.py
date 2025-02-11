@@ -16,7 +16,7 @@ import textwrap
 #website = {"https://www.newegg.ca/p/pl?N=100007708%20601432392%20601408875%20601432394%20601408874&d=rtx+5060&isdeptsrh=1","https://www.newegg.ca/p/pl?N=100007708%20601469156",
  #          "https://www.canadacomputers.com/en/search?s=rtx+5080","https://www.canadacomputers.com/en/search?s=rtx+5090",'https://www.canadacomputers.com/en/search?s=rtx+5070+ti',"https://www.canadacomputers.com/en/search?s=rtx+5070" , "https://www.newegg.ca/p/pl?d=rtx+5070","https://www.newegg.ca/p/pl?d=rtx+5070+ti"
     #       }
-website = {"https://www.vuugo.com/search/?q=rtx+4060"}
+website = {"https://www.memoryexpress.com/"}
 
 class web:
 
@@ -35,7 +35,7 @@ class web:
                 self.webData[count] = soup  # Store the parsed data by count
                 count += 1
             else:
-                print(f"Failed to fetch data from {url}")
+                print(f"Failed to fetch data from {url} response code {response.status_code}")
         #for newegg websites
     def forNewegg(self,data):
         #for finds all btn which say add to cart which are the ones in stock
@@ -88,9 +88,16 @@ class web:
             url = 'https://www.vuugo.com'+urltmp
             self.Instock.append((title,price,url))
             print(title,price,url)
+    def forCP(self,data):
+        for Instock in data.find_all('p',class_='mb-0 fs-sm text-center fw-bold text-green-500'):
+            parent = Instock.find_parent('div',class_='col-6 col-lg-4 col-xl-3 col-xxxl-2')
+            price = parent.find('p',class_='mb-0 mt-0.5rem text-red-500 fw-bolder fs-2xl text-center').text
+            price = re.sub(r'[^0-9.,]', '', price)
+            title = parent.find('p',class_='GridDescription-Clamped mb-0 fs-xs').text
+            print(title)
     def checkForStockedItems(self):
         for count, data in self.webData.items():
-            if 'Canada' in data.title.string:
+            if 'Canada Computers' in data.title.string:
                 self.forCC(data)
                 print("Running CanadaComputers Website\n")
                 continue
@@ -99,12 +106,18 @@ class web:
                 self.forNewegg(data)
                 continue
             if 'Memory' in data.title.string:
+                #error 403 need to bypass
                 print('Running Memory Express\n')
                 self.forMemory(data)
                 continue
             if 'Vuugo' in data.title.string:
                 print('Running Vugoo\n')
                 self.forVugoo(data)
+                continue
+            if'PC-Canada.com' in data.title.string:
+                print("Running PC-Canada\n")
+                self.forCP(data)
+                #error 403 need to bypass
                 continue
             else:
                 print("null")
@@ -202,9 +215,10 @@ class sendMessage:
 '''
 def main():
     previous = []
-    inStockData = web()
+    
     send = sendMessage()
     while True:
+        inStockData = web()
         inStockData.Run(previous)
         previous = inStockData.Instock
         print(inStockData.Instock)
