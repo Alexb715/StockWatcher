@@ -147,10 +147,13 @@ class sendMessage:
         #creates the message by adding everything together
        self.message = "In Stock \n" + "\n".join([" ".join(item) for item in inStock])
     def sendEmail(self, inStock):
+        #checks if anything is in stock
         if len(inStock) == 0:
             print("nothing in stock")
             return
+        #creates the message
         self.createMessage(inStock)
+        #prepares to send and advises as much
         print('Sending Message')
         message = MIMEMultipart()
         message['to'] = self.toEmail 
@@ -161,6 +164,7 @@ class sendMessage:
         raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode('utf-8')
         create_message = {"raw": raw_message}
         try:
+            #sends message
             send_message = self.service.users().messages().send(userId="me", body={'raw': raw_message}).execute()
             print("message sent")
         except Exception as error:
@@ -169,7 +173,7 @@ class sendMessage:
 
 
 
-
+'''
 def main():
     previous = []
     inStockData = web()
@@ -180,6 +184,8 @@ def main():
         print(inStockData.Instock)
         send.sendEmail(inStockData.Instock)
         time.sleep(60)
+        '''
         
-        
-main()
+#main()
+
+
