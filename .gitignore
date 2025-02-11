@@ -173,3 +173,6 @@ cython_debug/
 todo.txt
 handle.txt
 compare.txt
+email.txt
+credentials.json
+token.json
