@@ -12,13 +12,22 @@ from googleapiclient.errors import HttpError
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import textwrap
-website = {r'https://www.newegg.ca/p/pl?N=100007708%201469156%20601469156',r'https://www.newegg.ca/p/pl?N=100007708%201469156%20601408874%20601432394%20601408875%20601432392',
-           r'https://www.vuugo.com/category/video-cards-563/?min-price=0&max-price=3992&ordering=newest&GPU=GeForce+RTX+4000+Series&GPU=GeForce+RTX+5000+Series',r'https://www.newegg.ca/p/pl?d=rtx+5070+ti',r'https://www.newegg.ca/p/pl?d=rtx+5070'
-           ,r'https://www.canadacomputers.com/en/914/graphics-cards?q=GPU-GeForce+RTX+4090-GeForce+RTX+4070+Ti+Super',r'https://www.canadacomputers.com/en/search?s=rtx+5070+ti',
-           r'https://www.canadacomputers.com/en/search?s=rtx+5080'}
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium_stealth import stealth
+website = {r''}
 class web:
 
     def __init__(self):
+        self.header  = {
+       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Referer': 'https://www.google.com/'
+}
         self.Instock = []
         self.webData = {}  # This will store the parsed web data by index (or URL)#for newegg websites
     def forNewegg(self,data):
@@ -107,7 +116,7 @@ class web:
                 print("null")
     def Run(self,previous):
         self.webData.clear()
-        self.GetNewData()
+        self.GetData()
         self.Instock.clear()
         self.checkForStockedItems()
         #if it didnt change dont send again
@@ -116,11 +125,12 @@ class web:
         if(previous == self.Instock):
             self.Instock.clear()
             print("no new devices\n")
-    def GetNewData(self):
+    
+    def GetData(self):
         count = 0
         #passes thru all url in list above
         for url in website:
-            response = requests.get(url)
+            response = requests.get(url,headers=self.header)
             if response.status_code == 200:
                 #make it in a soup format
                 soup = BeautifulSoup(response.content, 'html.parser')
@@ -128,9 +138,45 @@ class web:
                 #adds it to a table
                 self.webData[count] = soup  # Store the parsed data by count
                 count += 1
+            elif response.status_code == 403:
+                #goes thru headless to mitigate cloudflare
+                self.webData[count] = self.goThruHeadless(url)
+                count+=1
             else:
                 print(f"Failed to fetch data from {url} response code {response.status_code}")
-    
+    def goThruHeadless(self, url):
+        chrome_options = Options()
+        chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--no-sandbox')
+        chrome_options.add_argument('--disable-dev-shm-usage')
+
+        driver = webdriver.Chrome(
+            service=Service(ChromeDriverManager().install()),
+            options=chrome_options
+        )
+
+    # Use selenium-stealth to bypass detection
+        stealth(
+            driver,
+            languages=["en-US", "en"],
+            vendor="Google Inc.",
+            platform="Win32",
+            webgl_vendor="Intel Inc.",
+            renderer="Intel Iris OpenGL Engine",
+            fix_hairline=True,
+        )
+
+        try:
+            driver.get(url)
+
+        # Extract content
+            soup = BeautifulSoup(driver.page_source, 'html.parser')
+            print(soup.title)
+            return soup
+
+        finally:
+            driver.quit()
+
 class sendMessage:
     def __init__(self, credentials_file='credentials.json', token_file='token.json'):
         # If modifying the SCOPES, delete the file token.json.
@@ -211,16 +257,6 @@ class sendMessage:
 
 
 
-
-def main():
-    previous = []
-    inStockData = web()
-    send = sendMessage()
-    while True:
-        inStockData.Run(previous)
-        previous = inStockData.Instock
-        print(inStockData.Instock)
-        send.sendEmail(inStockData.Instock)
-        time.sleep(60)
-        
-main()
+obj = web()
+previous = []
+obj.Run(previous=previous)
