@@ -13,10 +13,10 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import textwrap
     #for testing putposes
-website = {"https://www.newegg.ca/p/pl?N=100007708%20601432392%20601408875%20601432394%20601408874&d=rtx+5060&isdeptsrh=1","https://www.newegg.ca/p/pl?N=100007708%20601469156",
-           "https://www.canadacomputers.com/en/search?s=rtx+5080","https://www.canadacomputers.com/en/search?s=rtx+5090",'https://www.canadacomputers.com/en/search?s=rtx+5070+ti',"https://www.canadacomputers.com/en/search?s=rtx+5070" , "https://www.newegg.ca/p/pl?d=rtx+5070","https://www.newegg.ca/p/pl?d=rtx+5070+ti"
-           }
-
+#website = {"https://www.newegg.ca/p/pl?N=100007708%20601432392%20601408875%20601432394%20601408874&d=rtx+5060&isdeptsrh=1","https://www.newegg.ca/p/pl?N=100007708%20601469156",
+ #          "https://www.canadacomputers.com/en/search?s=rtx+5080","https://www.canadacomputers.com/en/search?s=rtx+5090",'https://www.canadacomputers.com/en/search?s=rtx+5070+ti',"https://www.canadacomputers.com/en/search?s=rtx+5070" , "https://www.newegg.ca/p/pl?d=rtx+5070","https://www.newegg.ca/p/pl?d=rtx+5070+ti"
+    #       }
+website = {"https://www.vuugo.com/search/?q=rtx+4060"}
 
 class web:
 
@@ -44,6 +44,7 @@ class web:
             parent=inStock.find_parent('div', class_="item-cell")
             #finds the price which is hidden in a list
             price = parent.find('li', class_='price-current').find('strong').text
+            price = re.sub(r'[^0-9.,]', '', price)
             #gets the clickable url immediatly
             url = parent.find('a').get('href')
             #also gets the title
@@ -70,6 +71,23 @@ class web:
                 self.Instock.append((title,price,url))
             else:
                 continue
+    def forMemory(self,data):
+        for Instock in data.find_all('a', title="Buy this item."):
+            print('found Something')
+    def forVugoo(self,data):
+        for Instock in data.find_all('div', class_='in-stock'):
+            #find the parent with the right class
+            parent = Instock.find_parent('div', class_='product-wrap mb-2')
+            #get the price info
+            price = parent.find(class_='new-price').text
+            price = re.sub(r'[^0-9.,]', '', price)
+            #get the title
+            title = parent.find('h3').find('a').get('title')
+            urltmp = parent.find('h3').find('a').get('href')
+            #get and add the complete url
+            url = 'https://www.vuugo.com'+urltmp
+            self.Instock.append((title,price,url))
+            print(title,price,url)
     def checkForStockedItems(self):
         for count, data in self.webData.items():
             if 'Canada' in data.title.string:
@@ -79,6 +97,14 @@ class web:
             if 'Newegg' in data.title.string:     
                 print("Running Newegg Website\n")   
                 self.forNewegg(data)
+                continue
+            if 'Memory' in data.title.string:
+                print('Running Memory Express\n')
+                self.forMemory(data)
+                continue
+            if 'Vuugo' in data.title.string:
+                print('Running Vugoo\n')
+                self.forVugoo(data)
                 continue
             else:
                 print("null")
@@ -188,4 +214,6 @@ def main():
         
 #main()
 
-
+obj = web()
+previous = []
+obj.Run(previous)
