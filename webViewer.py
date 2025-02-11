@@ -12,12 +12,9 @@ from googleapiclient.errors import HttpError
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import textwrap
-    #for testing putposes
-#website = {"https://www.newegg.ca/p/pl?N=100007708%20601432392%20601408875%20601432394%20601408874&d=rtx+5060&isdeptsrh=1","https://www.newegg.ca/p/pl?N=100007708%20601469156",
- #          "https://www.canadacomputers.com/en/search?s=rtx+5080","https://www.canadacomputers.com/en/search?s=rtx+5090",'https://www.canadacomputers.com/en/search?s=rtx+5070+ti',"https://www.canadacomputers.com/en/search?s=rtx+5070" , "https://www.newegg.ca/p/pl?d=rtx+5070","https://www.newegg.ca/p/pl?d=rtx+5070+ti"
-    #       }
-website = {"https://www.memoryexpress.com/"}
-
+website = {"https://www.newegg.ca/p/pl?N=100007708%20601432392%20601408875%20601432394%20601408874&d=rtx+5060&isdeptsrh=1","https://www.newegg.ca/p/pl?N=100007708%20601469156",
+        "https://www.canadacomputers.com/en/search?s=rtx+5080","https://www.canadacomputers.com/en/search?s=rtx+5090",'https://www.canadacomputers.com/en/search?s=rtx+5070+ti',"https://www.canadacomputers.com/en/search?s=rtx+5070" , "https://www.newegg.ca/p/pl?d=rtx+5070","https://www.newegg.ca/p/pl?d=rtx+5070+ti"
+       }
 class web:
 
     def __init__(self):
@@ -212,7 +209,6 @@ class sendMessage:
 
 
 
-'''
 def main():
     previous = []
     
@@ -224,10 +220,6 @@ def main():
         print(inStockData.Instock)
         send.sendEmail(inStockData.Instock)
         time.sleep(60)
-        '''
-        
-#main()
 
-obj = web()
-previous = []
-obj.Run(previous)
+        
+main()
