@@ -14,7 +14,7 @@ from email.mime.text import MIMEText
 import textwrap
     #for testing putposes
 website = {"https://www.newegg.ca/p/pl?N=100007708%20601432392%20601408875%20601432394%20601408874&d=rtx+5060&isdeptsrh=1","https://www.newegg.ca/p/pl?N=100007708%20601469156",
-           "https://www.canadacomputers.com/en/search?s=rtx+5080","https://www.canadacomputers.com/en/search?s=rtx+5090",'https://www.canadacomputers.com/en/search?s=rtx+5070+ti',"https://www.canadacomputers.com/en/search?s=rtx+5070"
+           "https://www.canadacomputers.com/en/search?s=rtx+5080","https://www.canadacomputers.com/en/search?s=rtx+5090",'https://www.canadacomputers.com/en/search?s=rtx+5070+ti',"https://www.canadacomputers.com/en/search?s=rtx+5070" , "https://www.newegg.ca/p/pl?d=rtx+5070","https://www.newegg.ca/p/pl?d=rtx+5070+ti"
            }
 
 
