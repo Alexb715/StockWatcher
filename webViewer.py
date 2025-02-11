@@ -49,6 +49,7 @@ class web:
             #also gets the title
             title = parent.find('a',class_='item-title').text
             #adds it to a list
+            print("Found Device " + title + '\n')
             self.Instock.append((title,price,url)) 
     def forCC(self,data):
         #gets the availble tage of all items
@@ -65,6 +66,7 @@ class web:
                 price = parent.find('span', {'aria-label': 'Price'}).text
                 price = re.sub(r'[^0-9.,]', '', price)
                 #add it to the list
+                print("Found Device " + title + '\n')
                 self.Instock.append((title,price,url))
             else:
                 continue
@@ -72,8 +74,10 @@ class web:
         for count, data in self.webData.items():
             if 'Canada' in data.title.string:
                 self.forCC(data)
+                print("Running CanadaComputers Website\n")
                 continue
-            if 'Newegg' in data.title.string:        
+            if 'Newegg' in data.title.string:     
+                print("Running Newegg Website\n")   
                 self.forNewegg(data)
                 continue
             else:
@@ -82,8 +86,11 @@ class web:
         self.Instock.clear()
         self.checkForStockedItems()
         #if it didnt change dont send again
+        amount = len(self.Instock)
+        print(f"Found {amount} items")
         if(previous == self.Instock):
             self.Instock.clear()
+            print("no new devices\n")
 class sendMessage:
     def __init__(self, credentials_file='credentials.json', token_file='token.json'):
         # If modifying the SCOPES, delete the file token.json.
@@ -144,6 +151,7 @@ class sendMessage:
             print("nothing in stock")
             return
         self.createMessage(inStock)
+        print('Sending Message')
         message = MIMEMultipart()
         message['to'] = self.toEmail 
         message['from'] = self.fromEmail
@@ -154,6 +162,7 @@ class sendMessage:
         create_message = {"raw": raw_message}
         try:
             send_message = self.service.users().messages().send(userId="me", body={'raw': raw_message}).execute()
+            print("message sent")
         except Exception as error:
             print(error)
 
