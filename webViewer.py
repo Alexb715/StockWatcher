@@ -19,21 +19,7 @@ class web:
 
     def __init__(self):
         self.Instock = []
-        self.webData = {}  # This will store the parsed web data by index (or URL)
-        count = 0
-        #passes thru all url in list above
-        for url in website:
-            response = requests.get(url)
-            if response.status_code == 200:
-                #make it in a soup format
-                soup = BeautifulSoup(response.content, 'html.parser')
-                soup.prettify()
-                #adds it to a table
-                self.webData[count] = soup  # Store the parsed data by count
-                count += 1
-            else:
-                print(f"Failed to fetch data from {url} response code {response.status_code}")
-        #for newegg websites
+        self.webData = {}  # This will store the parsed web data by index (or URL)#for newegg websites
     def forNewegg(self,data):
         #for finds all btn which say add to cart which are the ones in stock
         for inStock in data.find_all(class_="btn btn-primary btn-mini"):
@@ -119,6 +105,8 @@ class web:
             else:
                 print("null")
     def Run(self,previous):
+        self.webData.clear()
+        self.GetNewData()
         self.Instock.clear()
         self.checkForStockedItems()
         #if it didnt change dont send again
@@ -127,6 +115,21 @@ class web:
         if(previous == self.Instock):
             self.Instock.clear()
             print("no new devices\n")
+    def GetNewData(self):
+        count = 0
+        #passes thru all url in list above
+        for url in website:
+            response = requests.get(url)
+            if response.status_code == 200:
+                #make it in a soup format
+                soup = BeautifulSoup(response.content, 'html.parser')
+                soup.prettify()
+                #adds it to a table
+                self.webData[count] = soup  # Store the parsed data by count
+                count += 1
+            else:
+                print(f"Failed to fetch data from {url} response code {response.status_code}")
+    
 class sendMessage:
     def __init__(self, credentials_file='credentials.json', token_file='token.json'):
         # If modifying the SCOPES, delete the file token.json.
@@ -211,15 +214,13 @@ class sendMessage:
 
 def main():
     previous = []
-    
+    inStockData = web()
     send = sendMessage()
     while True:
-        inStockData = web()
         inStockData.Run(previous)
         previous = inStockData.Instock
         print(inStockData.Instock)
         send.sendEmail(inStockData.Instock)
         time.sleep(60)
-
         
 main()
