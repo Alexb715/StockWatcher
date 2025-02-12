@@ -125,7 +125,6 @@ class web:
         if(previous == self.Instock):
             self.Instock.clear()
             print("no new devices\n")
-    
     def GetData(self):
         count = 0
         #passes thru all url in list above
@@ -191,7 +190,7 @@ class sendMessage:
             emailFile = open("email.txt")
             self.toEmail = emailFile.readline()
             self.fromEmail = emailFile.readline()
-            self.message = ''
+            self.fullMessage = ''
         except:
             print("Couldn't find file")
             #run googles credentials and service requirements
@@ -231,7 +230,32 @@ class sendMessage:
     def createMessage(self, inStock):
         
         #creates the message by adding everything together
-       self.message = "In Stock \n" + "\n".join([" ".join(item) for item in inStock])
+       self.fullMessage = "In Stock \n" + "\n".join([" ".join(item) for item in inStock])
+    def splitMessage(self):
+        print('Splitting Message\n')
+    #found 1000 char to be not too long not to short
+        max_length = 1000
+        self.splitMessages = []
+        #while its too long
+        while len(self.fullMessage) > max_length:
+        # Find the nearest space or punctuation before the max_length
+            split_at = max_length
+            for i in range(max_length, 0, -1):
+                if self.fullMessage[i] in ' .,;!?':
+                    split_at = i
+                    break
+
+        # Split the string at the found position
+            part = self.fullMessage[:split_at].strip()
+            self.splitMessages.append(part)
+
+        # Remove the processed part from the long_string
+            self.fullMessage = self.fullMessage[split_at:].strip()
+
+    # Add the remaining part of the string
+        if self.fullMessage:
+            self.splitMessages.append(self.fullMessage)
+
     def sendEmail(self, inStock):
         #checks if anything is in stock
         if len(inStock) == 0:
@@ -241,22 +265,19 @@ class sendMessage:
         self.createMessage(inStock)
         #prepares to send and advises as much
         print('Sending Message')
-        message = MIMEMultipart()
-        message['to'] = self.toEmail 
-        message['from'] = self.fromEmail
-        message['subject'] = 'ALERT'
-        msg = MIMEText(self.message)
-        message.attach(msg)
-        raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode('utf-8')
-        try:
+        self.splitMessage()
+        for i in self.splitMessages:
+            message = MIMEMultipart()
+            message['to'] = self.toEmail 
+            message['from'] = self.fromEmail
+            message['subject'] = 'ALERT'
+            msg = MIMEText(i)
+            message.attach(msg)
+            raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode('utf-8')
+            try:
             #sends message
-            send_message = self.service.users().messages().send(userId="me", body={'raw': raw_message}).execute()
-            print("message sent")
-        except Exception as error:
-            print(error)
+                send_message = self.service.users().messages().send(userId="me", body={'raw': raw_message}).execute()
+                print("message sent")
+            except Exception as error:
+                print(error)
 
-
-
-obj = web()
-previous = []
-obj.Run(previous=previous)
