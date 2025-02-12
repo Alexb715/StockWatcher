@@ -31,20 +31,20 @@ class web:
     'Referer': 'https://www.google.com/'
 }
         self.Instock = []
-        chrome_options = Options()
-        chrome_options.add_argument('--headless')
-        chrome_options.add_argument('--no-sandbox')
-        chrome_options.add_argument('--disable-dev-shm-usage')
+        self.chrome_options = Options()
+        self.chrome_options.add_argument('--headless')
+        self.chrome_options.add_argument('--no-sandbox')
+        self.chrome_options.add_argument('--disable-dev-shm-usage')
 
         if os.uname().machine == "x86_64":
             self.driver = webdriver.Chrome(
                 service=Service(ChromeDriverManager().install()),
-                options=chrome_options
+                options=self.chrome_options
             )
         else:
             self.driver = webdriver.Chrome(
             service=Service('/usr/lib/chromium-browser/chromedriver'),
-            options=chrome_options)
+            options=self.chrome_options)
         if os.uname().nodename == 'raspberrypi':
             self.driver.set_page_load_timeout(300)
             self.driver.set_script_timeout(300)
