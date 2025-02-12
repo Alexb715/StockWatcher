@@ -31,7 +31,43 @@ class web:
     'Referer': 'https://www.google.com/'
 }
         self.Instock = []
-        self.webData = {}  # This will store the parsed web data by index (or URL)#for newegg websites
+        chrome_options = Options()
+        chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--no-sandbox')
+        chrome_options.add_argument('--disable-dev-shm-usage')
+
+        if os.uname().machine == "x86_64":
+            self.driver = webdriver.Chrome(
+                service=Service(ChromeDriverManager().install()),
+                options=chrome_options
+            )
+        else:
+            self.driver = webdriver.Chrome(
+            service=Service('/usr/lib/chromium-browser/chromedriver'),
+            options=chrome_options)
+        if os.uname().nodename == 'raspberrypi':
+            self.driver.set_page_load_timeout(300)
+            self.driver.set_script_timeout(300)
+    # Use selenium-stealth to bypass detection
+        stealth(
+            self.driver,
+            languages=["en-US", "en"],
+            vendor="Google Inc.",
+            platform="Win32",
+            webgl_vendor="Intel Inc.",
+            renderer="Intel Iris OpenGL Engine",
+            fix_hairline=True,
+        )
+
+        self.webData = {}  
+    def __del__(self):
+        # Cleanup method to close the WebDriver and free resources
+        print("Cleaning up and quitting WebDriver.")
+        try:
+            self.driver.quit()  # Close the browser
+        except Exception as e:
+            print(f"Error while quitting driver: {e}")
+    # This will store the parsed web data by index (or URL)#for newegg websites
     def forNewegg(self,data):
         #for finds all btn which say add to cart which are the ones in stock
         for inStock in data.find_all(class_="btn btn-primary btn-mini"):
@@ -156,46 +192,17 @@ class web:
             else:
                 print(f"Failed to fetch data from {url} response code {response.status_code}")
     def goThruHeadless(self, url):
-        chrome_options = Options()
-        chrome_options.add_argument('--headless')
-        chrome_options.add_argument('--no-sandbox')
-        chrome_options.add_argument('--disable-dev-shm-usage')
-
-        if os.uname().machine == "x86_64":
-            driver = webdriver.Chrome(
-                service=Service(ChromeDriverManager().install()),
-                options=chrome_options
-            )
-        else:
-            driver = webdriver.Chrome(
-            service=Service('/usr/lib/chromium-browser/chromedriver'),
-            options=chrome_options)
-        if os.uname().nodename == 'raspberrypi':
-            driver.set_page_load_timeout(300)
-            driver.set_script_timeout(300)
-    # Use selenium-stealth to bypass detection
-        stealth(
-            driver,
-            languages=["en-US", "en"],
-            vendor="Google Inc.",
-            platform="Win32",
-            webgl_vendor="Intel Inc.",
-            renderer="Intel Iris OpenGL Engine",
-            fix_hairline=True,
-        )
-
         try:
-            driver.get(url)
+            self.driver.get(url)
             #makes sure the website loads correctly
             print('running headless')
-            time.sleep(7)
+            time.sleep(10)
         # Extract content
-            soup = BeautifulSoup(driver.page_source, 'html.parser')
+            soup = BeautifulSoup(self.driver.page_source, 'html.parser')
             
             return soup
-
-        finally:
-            driver.quit()
+        except:
+            print("ERROR" + self.driver.error_handler)
 
 class sendMessage:
     def __init__(self, credentials_file='credentials.json', token_file='token.json'):
@@ -312,5 +319,5 @@ def main():
         site.Run(previous)
         previous = site.Instock
         message.sendEmail(site.Instock)
-        time.sleep(10)
+        time.sleep(60)
 main()
