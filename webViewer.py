@@ -18,7 +18,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium_stealth import stealth
-website = {'https://www.pc-canada.com/?query=rtx%204060&productType=Graphic%20Card'}
+website = {'https://www.memoryexpress.com/Category/VideoCards'}
 class web:
 
     def __init__(self):
@@ -43,7 +43,6 @@ class web:
             #also gets the title
             title = parent.find('a',class_='item-title').text
             #adds it to a list
-            print("Found Device " + title + '\n')
             self.Instock.append((title,price,url)) 
     def forCC(self,data):
         #gets the availble tage of all items
@@ -60,13 +59,20 @@ class web:
                 price = parent.find('span', {'aria-label': 'Price'}).text
                 price = re.sub(r'[^0-9.,]', '', price)
                 #add it to the list
-                print("Found Device " + title + '\n')
                 self.Instock.append((title,price,url))
             else:
                 continue
     def forMemory(self,data):
         for Instock in data.find_all('a', title="Buy this item."):
-            print('found Something')
+            parent = Instock.find_parent('div',class_='c-shca-icon-item')
+            title = parent.find('div',class_='c-shca-icon-item__body-name').find('a').text
+            url = parent.find('div',class_='c-shca-icon-item__body-name').find('a').get('href')
+            url = "https://memoryexpress.com" + url
+            price = parent.find('div',class_='c-shca-icon-item__summary-list').find('span').text
+            price = re.sub(r'[^0-9.,]', '', price)
+            url = url.replace('\n',' ').replace('\t',"")
+            title = title.replace('\t',' ').strip()
+            self.Instock.append((title,price,url))
     def forVugoo(self,data):
         for Instock in data.find_all('div', class_='in-stock'):
             #find the parent with the right class
@@ -88,9 +94,8 @@ class web:
             titlearea = parent.find('p',class_='GridDescription-Clamped mb-0 fs-xs')
             title = titlearea.text
             url = parent.find('a',class_="d-block mt-0.5rem fw-bold text-gray-800 text-red-500-hover text-decoration-none text-center transition duration-150 ease-in-out").get('href')
-            url = 'https://www.pc-canada.com/'+url
+            url = 'https://www.pc-canada.com'+url
             title = title.replace('\n',' ').replace('\t',"")
-            print("Found Device " + title + '\n')
             self.Instock.append((title,price,url))
     def checkForStockedItems(self):
         for count, data in self.webData.items():
@@ -130,6 +135,10 @@ class web:
         if(previous == self.Instock):
             self.Instock.clear()
             print("no new devices\n")
+        else:
+            for i in previous:
+                if i in self.Instock:
+                    self.Instock.remove(i)
     def GetData(self):
         count = 0
         #passes thru all url in list above
@@ -284,9 +293,20 @@ class sendMessage:
             #sends message
                 send_message = self.service.users().messages().send(userId="me", body={'raw': raw_message}).execute()
                 print("message sent")
+                time.sleep(5)
             except Exception as error:
                 print(error)
 
-site = web()
-privous = []
-site.Run(privous)
+def main():
+    previous = []
+    site = web()
+    #get Current list that we dont want sent
+    site.Run(previous)
+    previous = site.Instock
+    message =sendMessage()
+    while True:
+        site.Run(previous)
+        previous = site.Instock
+        message.sendEmail(site.Instock)
+        time.sleep(60)
+main()
