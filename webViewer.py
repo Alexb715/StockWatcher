@@ -18,7 +18,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium_stealth import stealth
-website = {r''}
+website = {'https://www.pc-canada.com/?query=rtx%204060&productType=Graphic%20Card'}
 class web:
 
     def __init__(self):
@@ -79,15 +79,19 @@ class web:
             urltmp = parent.find('h3').find('a').get('href')
             #get and add the complete url
             url = 'https://www.vuugo.com'+urltmp
-            self.Instock.append((title,price,url))
-            print(title,price,url)
+            self.Instock.append((title,price,url))       
     def forCP(self,data):
         for Instock in data.find_all('p',class_='mb-0 fs-sm text-center fw-bold text-green-500'):
             parent = Instock.find_parent('div',class_='col-6 col-lg-4 col-xl-3 col-xxxl-2')
             price = parent.find('p',class_='mb-0 mt-0.5rem text-red-500 fw-bolder fs-2xl text-center').text
             price = re.sub(r'[^0-9.,]', '', price)
-            title = parent.find('p',class_='GridDescription-Clamped mb-0 fs-xs').text
-            print(title)
+            titlearea = parent.find('p',class_='GridDescription-Clamped mb-0 fs-xs')
+            title = titlearea.text
+            url = parent.find('a',class_="d-block mt-0.5rem fw-bold text-gray-800 text-red-500-hover text-decoration-none text-center transition duration-150 ease-in-out").get('href')
+            url = 'https://www.pc-canada.com/'+url
+            title = title.replace('\n',' ').replace('\t',"")
+            print("Found Device " + title + '\n')
+            self.Instock.append((title,price,url))
     def checkForStockedItems(self):
         for count, data in self.webData.items():
             if 'Canada Computers' in data.title.string:
@@ -113,7 +117,8 @@ class web:
                 #error 403 need to bypass
                 continue
             else:
-                print("null")
+                print("Unknown Website Please Edit and try again")
+                print(data.title.string)
     def Run(self,previous):
         self.webData.clear()
         self.GetData()
@@ -167,10 +172,11 @@ class web:
 
         try:
             driver.get(url)
-
+            #makes sure the website loads correctly
+            time.sleep(5)
         # Extract content
             soup = BeautifulSoup(driver.page_source, 'html.parser')
-            print(soup.title)
+            
             return soup
 
         finally:
@@ -281,3 +287,6 @@ class sendMessage:
             except Exception as error:
                 print(error)
 
+site = web()
+privous = []
+site.Run(privous)
