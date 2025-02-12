@@ -161,10 +161,15 @@ class web:
         chrome_options.add_argument('--no-sandbox')
         chrome_options.add_argument('--disable-dev-shm-usage')
 
-        driver = webdriver.Chrome(
-            service=Service(ChromeDriverManager().install()),
-            options=chrome_options
-        )
+        if os.uname().machine == "x86_64":
+            driver = webdriver.Chrome(
+                service=Service(ChromeDriverManager().install()),
+                options=chrome_options
+            )
+        else:
+            driver = webdriver.Chrome(
+            service=Service('/usr/lib/chromium-browser/chromedriver'),
+            options=chrome_options)
 
     # Use selenium-stealth to bypass detection
         stealth(
