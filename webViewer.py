@@ -18,7 +18,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium_stealth import stealth
-website = {'https://www.memoryexpress.com/Category/VideoCards'}
+website = {r'https://www.newegg.ca/p/pl?N=100007708%20601469156%20601469154&PageSize=96',r'https://www.canadacomputers.com/en/search?s=rtx+5070+ti',r'https://www.canadacomputers.com/en/search?s=rtx+5070',
+           r'https://www.canadacomputers.com/en/search?s=rtx+5080',r'https://www.memoryexpress.com/Category/VideoCards?FilterID=1c84b44a-7d8b-bfad-8f43-f0cbe5b89a34&Sort=Price&PageSize=120',r'https://www.vuugo.com/category/video-cards-563/?min-price=0&max-price=10700&ordering=newest&GPU=GeForce+RTX+5000+Series'
+           r'https://www.pc-canada.com/?query=rtx%205070%20ti&productType=Graphic%20Card',r'https://www.pc-canada.com/?query=rtx%205070&productType=Graphic%20Card',r'https://www.pc-canada.com/?query=rtx%205070%20ti&productType=Graphic%20Card'}
 class web:
 
     def __init__(self):
@@ -182,7 +184,8 @@ class web:
         try:
             driver.get(url)
             #makes sure the website loads correctly
-            time.sleep(5)
+            print('running headless')
+            time.sleep(7)
         # Extract content
             soup = BeautifulSoup(driver.page_source, 'html.parser')
             
