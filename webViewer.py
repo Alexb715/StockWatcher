@@ -305,7 +305,6 @@ def main():
     previous = []
     site = web()
     #get Current list that we dont want sent
-    site.Run(previous)
     message =sendMessage()
     while True:
         site.Run(previous)
