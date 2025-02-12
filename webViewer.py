@@ -193,9 +193,10 @@ class web:
                 print(f"Failed to fetch data from {url} response code {response.status_code}")
     def goThruHeadless(self, url):
         try:
+            print('running headless')
             self.driver.get(url)
             #makes sure the website loads correctly
-            print('running headless')
+            
             time.sleep(10)
         # Extract content
             soup = BeautifulSoup(self.driver.page_source, 'html.parser')
