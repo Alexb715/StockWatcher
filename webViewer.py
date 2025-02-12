@@ -137,10 +137,6 @@ class web:
         if(previous == self.Instock):
             self.Instock.clear()
             print("no new devices\n")
-        else:
-            for i in previous:
-                if i in self.Instock:
-                    self.Instock.remove(i)
     def GetData(self):
         count = 0
         #passes thru all url in list above
@@ -305,7 +301,6 @@ def main():
     site = web()
     #get Current list that we dont want sent
     site.Run(previous)
-    previous = site.Instock
     message =sendMessage()
     while True:
         site.Run(previous)
