@@ -171,7 +171,7 @@ class web:
             service=Service('/usr/lib/chromium-browser/chromedriver'),
             options=chrome_options)
         if os.uname().nodename == 'raspberrypi':
-            driver.driver.set_page_load_timeout(300)
+            driver.set_page_load_timeout(300)
             driver.set_script_timeout(300)
     # Use selenium-stealth to bypass detection
         stealth(
