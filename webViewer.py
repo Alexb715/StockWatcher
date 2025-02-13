@@ -18,9 +18,11 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium_stealth import stealth
-website = {r'https://www.newegg.ca/p/pl?N=100007708%20601469156%20601469154&PageSize=96',r'https://www.canadacomputers.com/en/search?s=rtx+5070+ti',r'https://www.canadacomputers.com/en/search?s=rtx+5070',
-           r'https://www.canadacomputers.com/en/search?s=rtx+5080',r'https://www.memoryexpress.com/Category/VideoCards?FilterID=1c84b44a-7d8b-bfad-8f43-f0cbe5b89a34&Sort=Price&PageSize=120',r'https://www.vuugo.com/category/video-cards-563/?min-price=0&max-price=10700&ordering=newest&GPU=GeForce+RTX+5000+Series'
-           r'https://www.pc-canada.com/?query=rtx%205070%20ti&productType=Graphic%20Card',r'https://www.pc-canada.com/?query=rtx%205070&productType=Graphic%20Card',r'https://www.pc-canada.com/?query=rtx%205070%20ti&productType=Graphic%20Card'}
+website = {r'https://www.bestbuy.ca/en-ca/search?search=rtx+5090'}
+#           r'https://www.newegg.ca/p/pl?N=100007708%20601469156%20601469154&PageSize=96',r'https://www.canadacomputers.com/en/search?s=rtx+5070+ti',r'https://www.canadacomputers.com/en/search?s=rtx+5070',
+#          r'https://www.canadacomputers.com/en/search?s=rtx+5080',r'https://www.memoryexpress.com/Category/VideoCards?FilterID=1c84b44a-7d8b-bfad-8f43-f0cbe5b89a34&Sort=Price&PageSize=120',r'https://www.vuugo.com/category/video-cards-563/?min-price=0&max-price=10700&ordering=newest&GPU=GeForce+RTX+5000+Series'
+#           r'https://www.pc-canada.com/?query=rtx%205070%20ti&productType=Graphic%20Card',r'https://www.pc-canada.com/?query=rtx%205070&productType=Graphic%20Card',r'https://www.pc-canada.com/?query=rtx%205070%20ti&productType=Graphic%20Card'}
+
 class web:
 
     def __init__(self):
@@ -49,16 +51,7 @@ class web:
             self.driver.set_page_load_timeout(300)
             self.driver.set_script_timeout(300)
     # Use selenium-stealth to bypass detection
-        stealth(
-            self.driver,
-            languages=["en-US", "en"],
-            vendor="Google Inc.",
-            platform="Win32",
-            webgl_vendor="Intel Inc.",
-            renderer="Intel Iris OpenGL Engine",
-            fix_hairline=True,
-        )
-
+        
         self.webData = {}  
     def __del__(self):
         # Cleanup method to close the WebDriver and free resources
@@ -137,28 +130,30 @@ class web:
             self.Instock.append((title,price,url))
     def checkForStockedItems(self):
         for count, data in self.webData.items():
-            if 'Canada Computers' in data.title.string:
+            if 'Canada Computers' in data.title.text:
                 self.forCC(data)
                 print("Running CanadaComputers Website\n")
                 continue
-            if 'Newegg' in data.title.string:     
+            if 'Newegg' in data.title.text:     
                 print("Running Newegg Website\n")   
                 self.forNewegg(data)
                 continue
-            if 'Memory' in data.title.string:
+            if 'Memory' in data.title.text:
                 #error 403 need to bypass
                 print('Running Memory Express\n')
                 self.forMemory(data)
                 continue
-            if 'Vuugo' in data.title.string:
+            if 'Vuugo' in data.title.text:
                 print('Running Vugoo\n')
                 self.forVugoo(data)
                 continue
-            if'PC-Canada.com' in data.title.string:
+            if 'PC-Canada.com' in data.title.text:
                 print("Running PC-Canada\n")
                 self.forCP(data)
                 #error 403 need to bypass
                 continue
+            if"Best Buy" in data.title.text:
+                print("bestbuy")
             else:
                 print("Unknown Website Please Edit and try again")
                 print(data.title.string)
@@ -177,23 +172,41 @@ class web:
         count = 0
         #passes thru all url in list above
         for url in website:
-            response = requests.get(url,headers=self.header)
-            if response.status_code == 200:
+            if'bestbuy' not in url:
+                response = requests.get(url,headers=self.header)
+                if response.status_code == 200:
                 #make it in a soup format
-                soup = BeautifulSoup(response.content, 'html.parser')
-                soup.prettify()
+                    soup = BeautifulSoup(response.content, 'html.parser')
+                    soup.prettify()
                 #adds it to a table
-                self.webData[count] = soup  # Store the parsed data by count
-                count += 1
-            elif response.status_code == 403:
+                    self.webData[count] = soup  # Store the parsed data by count
+                    count += 1
+                elif response.status_code == 403:
                 #goes thru headless to mitigate cloudflare
+                    self.webData[count] = self.goThruHeadless(url)
+                    count+=1
+                else:
+                    print(f"Failed to fetch data from {url} response code {response.status_code}")
+            elif 'bestbuy' in url:
                 self.webData[count] = self.goThruHeadless(url)
                 count+=1
             else:
-                print(f"Failed to fetch data from {url} response code {response.status_code}")
+                print('error')
     def goThruHeadless(self, url):
         try:
             print('running headless')
+            if'bestbuy' not in url:
+                #best buy breaks if stealth is on
+                stealth(
+            self.driver,
+            languages=["en-US", "en"],
+            vendor="Google Inc.",
+            platform="Win32",
+            webgl_vendor="Intel Inc.",
+            renderer="Intel Iris OpenGL Engine",
+            fix_hairline=True,
+        )
+
             self.driver.get(url)
             #makes sure the website loads correctly
             
