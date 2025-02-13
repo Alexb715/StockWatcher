@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
+import random
 import re
 import time
 import os.path
@@ -18,48 +19,21 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium_stealth import stealth
-website = {r'https://www.newegg.ca/p/pl?N=100007708%20601469156%20601469154&PageSize=96',r'https://www.canadacomputers.com/en/search?s=rtx+5070+ti',r'https://www.canadacomputers.com/en/search?s=rtx+5070',
-           r'https://www.canadacomputers.com/en/search?s=rtx+5080',r'https://www.memoryexpress.com/Category/VideoCards?FilterID=1c84b44a-7d8b-bfad-8f43-f0cbe5b89a34&Sort=Price&PageSize=120',r'https://www.vuugo.com/category/video-cards-563/?min-price=0&max-price=10700&ordering=newest&GPU=GeForce+RTX+5000+Series'
-           r'https://www.pc-canada.com/?query=rtx%205070%20ti&productType=Graphic%20Card',r'https://www.pc-canada.com/?query=rtx%205070&productType=Graphic%20Card',r'https://www.pc-canada.com/?query=rtx%205070%20ti&productType=Graphic%20Card',
-           r'https://www.bestbuy.ca/en-ca/collection/nvidia-graphic-cards-rtx-50-series/bltbd7cf78bd1d558ef?sort=priceLowToHigh',r'https://www.bestbuy.ca/en-ca/collection/nvidia-founders-edition/412549?icmp=computing_nvidia_graphic_cards_ssc_category_icon_founders_edition'}
+website = {r'https://www.newegg.ca/p/pl?N=100007708%20601469156%20601469154&PageSize=96', r'https://www.canadacomputers.com/en/search?s=rtx+5070+ti', r'https://www.memoryexpress.com/Category/VideoCards?FilterID=1c84b44a-7d8b-bfad-8f43-f0cbe5b89a34&Sort=Price&PageSize=120',
+           r'https://www.canadacomputers.com/en/search?s=rtx+5080', r'https://www.vuugo.com/category/video-cards-563/?min-price=0&max-price=10700&ordering=newest&G PU=GeForce+RTX+5000+Series',r'https://www.canadacomputers.com/en/search?s=rtx+5070',
+           r'https://www.bestbuy.ca/en-ca/collection/nvidia-founders-edition/412549?icmp=computing_nvidia_graphic_cards_ssc_category_icon_founders_edition',r'https://www.pc-canada.com/?query=rtx%205070%20ti&productType=Graphic%20Card',
+           r'https://www.bestbuy.ca/en-ca/collection/nvidia-graphic-cards-rtx-50-series/bltbd7cf78bd1d558ef?sort=priceLowToHigh',r'https://www.pc-canada.com/?query=rtx%205070&productType=Graphic%20Card',r'https://www.vuugo.com/category/video-cards-563/?min-price=0&max-price=2202&ordering=newest&GPU=GeForce+RTX+4000+Series&GPU=GeForce+RTX+5000+Series'}
 class web:
 
     def __init__(self):
-        self.header  = {
+        self.headerForRequests  = {
        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
     'Accept-Language': 'en-US,en;q=0.9',
     'Referer': 'https://www.google.com/'
 }
         self.Instock = []
-        self.chrome_options = Options()
-        self.chrome_options.add_argument('--headless')
-        self.chrome_options.add_argument('--no-sandbox')
-        self.chrome_options.add_argument('--disable-dev-shm-usage')
-
-        if os.uname().machine == "x86_64":
-            self.driver = webdriver.Chrome(
-                service=Service(ChromeDriverManager().install()),
-                options=self.chrome_options
-            )
-        else:
-            self.driver = webdriver.Chrome(
-            service=Service('/usr/lib/chromium-browser/chromedriver'),
-            options=self.chrome_options)
-        if os.uname().nodename == 'raspberrypi':
-            self.driver.set_page_load_timeout(300)
-            self.driver.set_script_timeout(300)
-    # Use selenium-stealth to bypass detection
-        
         self.webData = {}  
-    def __del__(self):
-        # Cleanup method to close the WebDriver and free resources
-        print("Cleaning up and quitting WebDriver.")
-        try:
-            self.driver.quit()  # Close the browser
-        except Exception as e:
-            print(f"Error while quitting driver: {e}")
-    # This will store the parsed web data by index (or URL)#for newegg websites
     def forNewegg(self,data):
         #for finds all btn which say add to cart which are the ones in stock
         for inStock in data.find_all(class_="btn btn-primary btn-mini"):
@@ -182,7 +156,7 @@ class web:
         #passes thru all url in list above
         for url in website:
             if'bestbuy' not in url:
-                response = requests.get(url,headers=self.header)
+                response = requests.get(url,headers=self.headerForRequests)
                 if response.status_code == 200:
                 #make it in a soup format
                     soup = BeautifulSoup(response.content, 'html.parser')
@@ -202,12 +176,29 @@ class web:
             else:
                 print('error')
     def goThruHeadless(self, url):
-        try:
-            print('running headless')
-            if'bestbuy' not in url:
+        chrome_options = Options()
+        chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--no-sandbox')
+        chrome_options.add_argument('--disable-dev-shm-usage')
+        if os.uname().machine == "x86_64":
+            driver = webdriver.Chrome(
+                service=Service(ChromeDriverManager().install()),
+                options=chrome_options
+            )
+        else:
+            driver = webdriver.Chrome(
+            service=Service('/usr/lib/chromium-browser/chromedriver'),
+            options=chrome_options)
+        if os.uname().nodename == 'raspberrypi':
+            driver.set_page_load_timeout(300)
+            driver.set_script_timeout(300)
+    # Use selenium-stealth to bypass detection
+        
+        print('running headless')
+        if'bestbuy' not in url:
                 #best buy breaks if stealth is on
-                stealth(
-            self.driver,
+            stealth(
+            driver,
             languages=["en-US", "en"],
             vendor="Google Inc.",
             platform="Win32",
@@ -215,17 +206,17 @@ class web:
             renderer="Intel Iris OpenGL Engine",
             fix_hairline=True,
         )
-
-            self.driver.get(url)
+        try:  
+            #here is usually where it fails 
+            driver.get(url)
             #makes sure the website loads correctly
-            
-            time.sleep(10)
+            time.sleep(5)
         # Extract content
-            soup = BeautifulSoup(self.driver.page_source, 'html.parser')
-            
+            soup = BeautifulSoup(driver.page_source, 'html.parser')
+            driver.quit()
             return soup
         except:
-            print("ERROR" + self.driver.error_handler)
+            print("ERROR" + str(driver.error_handler))
 
 class sendMessage:
     def __init__(self, credentials_file='credentials.json', token_file='token.json'):
@@ -334,6 +325,7 @@ class sendMessage:
                 print(error)
 
 def main():
+    print(len(website))
     previous = []
     site = web()
     #get Current list that we dont want sent

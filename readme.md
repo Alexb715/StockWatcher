@@ -112,6 +112,7 @@ To add or remove websites, modify the website set in the script:
             # Add more URLs here
         }
 ```
+:warning: **Warning:** For better bot detection avoidence try not to put two of the same website back to back if they use detection
 ## File Structure
 ```
 StockWatcher/
