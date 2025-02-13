@@ -18,11 +18,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium_stealth import stealth
-website = {r'https://www.bestbuy.ca/en-ca/search?search=rtx+5090'}
-#           r'https://www.newegg.ca/p/pl?N=100007708%20601469156%20601469154&PageSize=96',r'https://www.canadacomputers.com/en/search?s=rtx+5070+ti',r'https://www.canadacomputers.com/en/search?s=rtx+5070',
-#          r'https://www.canadacomputers.com/en/search?s=rtx+5080',r'https://www.memoryexpress.com/Category/VideoCards?FilterID=1c84b44a-7d8b-bfad-8f43-f0cbe5b89a34&Sort=Price&PageSize=120',r'https://www.vuugo.com/category/video-cards-563/?min-price=0&max-price=10700&ordering=newest&GPU=GeForce+RTX+5000+Series'
-#           r'https://www.pc-canada.com/?query=rtx%205070%20ti&productType=Graphic%20Card',r'https://www.pc-canada.com/?query=rtx%205070&productType=Graphic%20Card',r'https://www.pc-canada.com/?query=rtx%205070%20ti&productType=Graphic%20Card'}
-
+website = {r'https://www.newegg.ca/p/pl?N=100007708%20601469156%20601469154&PageSize=96',r'https://www.canadacomputers.com/en/search?s=rtx+5070+ti',r'https://www.canadacomputers.com/en/search?s=rtx+5070',
+           r'https://www.canadacomputers.com/en/search?s=rtx+5080',r'https://www.memoryexpress.com/Category/VideoCards?FilterID=1c84b44a-7d8b-bfad-8f43-f0cbe5b89a34&Sort=Price&PageSize=120',r'https://www.vuugo.com/category/video-cards-563/?min-price=0&max-price=10700&ordering=newest&GPU=GeForce+RTX+5000+Series'
+           r'https://www.pc-canada.com/?query=rtx%205070%20ti&productType=Graphic%20Card',r'https://www.pc-canada.com/?query=rtx%205070&productType=Graphic%20Card',r'https://www.pc-canada.com/?query=rtx%205070%20ti&productType=Graphic%20Card',
+           r'https://www.bestbuy.ca/en-ca/collection/nvidia-graphic-cards-rtx-50-series/bltbd7cf78bd1d558ef?sort=priceLowToHigh',r'https://www.bestbuy.ca/en-ca/collection/nvidia-founders-edition/412549?icmp=computing_nvidia_graphic_cards_ssc_category_icon_founders_edition'}
 class web:
 
     def __init__(self):
@@ -128,6 +127,16 @@ class web:
             url = 'https://www.pc-canada.com'+url
             title = title.replace('\n',' ').replace('\t',"")
             self.Instock.append((title,price,url))
+    
+    def forBB(self,data):
+        for Instock in data.find_all('span',class_='container_1DAvI'):
+            if Instock.text in ['Available to ship', 'Available for backorder']:
+                parent = Instock.find_parent('a',class_='link_3hcyN inline-block h-full w-full focus-visible-outline-2')
+                title = parent.find('h3',class_="productItemName_3IZ3c").text
+                price = parent.find('div',class_='productPricingContainer_3gTS3').find('span').find('span').text
+                price = re.sub(r'[^0-9.,]', '', price)
+                url = 'https://bestbuy.ca'+ parent.get('href')
+                self.Instock.append((title,price,url))
     def checkForStockedItems(self):
         for count, data in self.webData.items():
             if 'Canada Computers' in data.title.text:
@@ -150,10 +159,10 @@ class web:
             if 'PC-Canada.com' in data.title.text:
                 print("Running PC-Canada\n")
                 self.forCP(data)
-                #error 403 need to bypass
                 continue
             if"Best Buy" in data.title.text:
-                print("bestbuy")
+                print("Running BestBuy\n")
+                self.forBB(data)
             else:
                 print("Unknown Website Please Edit and try again")
                 print(data.title.string)

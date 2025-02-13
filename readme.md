@@ -9,6 +9,7 @@ This project is a Python-based web scraping tool designed to monitor stock avail
     - Memory Express
     - Vuugo
     - PC-Canada
+    - Best Buy Canada
 
 - **Headless Browsing**: Uses Selenium with a headless Chrome browser to bypass anti-scraping measures (e.g., Cloudflare).
 
@@ -78,6 +79,9 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 recipient@example.com
 sender@example.com
 ```
+[!TIP] 
+For SMS Check for your SMS Gateway Address usually number@carrieraddress
+
 **Install ChromeDriver**:
 
 - For x86_64 systems, the script will automatically install ChromeDriver using webdriver_manager.
