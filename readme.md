@@ -79,8 +79,7 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 recipient@example.com
 sender@example.com
 ```
-[!TIP] 
-For SMS Check for your SMS Gateway Address usually number@carrieraddress
+:bulb: **Tip:** For SMS Check for your SMS Gateway Address usually number@carrieraddress
 
 **Install ChromeDriver**:
 
