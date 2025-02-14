@@ -354,5 +354,5 @@ def main():
     while True:
         site.Run(previous)
         previous = message.sendEmail(site.Instock,previous)
-        time.sleep(30)
+        time.sleep(60)
 main()
