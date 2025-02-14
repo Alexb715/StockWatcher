@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import requests
 import random
 import re
+import copy
 import time
 import os.path
 import base64
@@ -19,10 +20,11 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium_stealth import stealth
-website = {r'https://www.newegg.ca/p/pl?N=100007708%20601469156%20601469154&PageSize=96', r'https://www.canadacomputers.com/en/search?s=rtx+5070+ti', r'https://www.memoryexpress.com/Category/VideoCards?FilterID=1c84b44a-7d8b-bfad-8f43-f0cbe5b89a34&Sort=Price&PageSize=120',
+'''website = {r'https://www.newegg.ca/p/pl?N=100007708%20601469156%20601469154&PageSize=96', r'https://www.canadacomputers.com/en/search?s=rtx+5070+ti', r'https://www.memoryexpress.com/Category/VideoCards?FilterID=1c84b44a-7d8b-bfad-8f43-f0cbe5b89a34&Sort=Price&PageSize=120',
            r'https://www.canadacomputers.com/en/search?s=rtx+5080', r'https://www.vuugo.com/category/video-cards-563/?min-price=0&max-price=10700&ordering=newest&G PU=GeForce+RTX+5000+Series',r'https://www.canadacomputers.com/en/search?s=rtx+5070',
            r'https://www.bestbuy.ca/en-ca/collection/nvidia-founders-edition/412549?icmp=computing_nvidia_graphic_cards_ssc_category_icon_founders_edition',r'https://www.pc-canada.com/?query=rtx%205070%20ti&productType=Graphic%20Card',
-           r'https://www.bestbuy.ca/en-ca/collection/nvidia-graphic-cards-rtx-50-series/bltbd7cf78bd1d558ef?sort=priceLowToHigh',r'https://www.pc-canada.com/?query=rtx%205070&productType=Graphic%20Card',r'https://www.vuugo.com/category/video-cards-563/?min-price=0&max-price=2202&ordering=newest&GPU=GeForce+RTX+4000+Series&GPU=GeForce+RTX+5000+Series'}
+           r'https://www.bestbuy.ca/en-ca/collection/nvidia-graphic-cards-rtx-50-series/bltbd7cf78bd1d558ef?sort=priceLowToHigh',r'https://www.pc-canada.com/?query=rtx%205070&productType=Graphic%20Card',r'https://www.vuugo.com/category/video-cards-563/?min-price=0&max-price=2202&ordering=newest&GPU=GeForce+RTX+4000+Series&GPU=GeForce+RTX+5000+Series'}'''
+website = {r'http://127.0.0.1:5500'}
 class web:
 
     def __init__(self):
@@ -149,7 +151,6 @@ class web:
         amount = len(self.Instock)
         print(f"Found {amount} items")
         if(previous == self.Instock):
-            self.Instock.clear()
             print("no new devices\n")
     def GetData(self):
         count = 0
@@ -270,9 +271,10 @@ class sendMessage:
         # Use the loaded credentials to build the Calendar API service object
         self.service = build("gmail", "v1", credentials=self.creds)
     def createMessage(self, inStock):
-        
+        if inStock is None or len(inStock) == 0:
+            return
         #creates the message by adding everything together
-       self.fullMessage = "In Stock \n" + "\n".join([" ".join(item) for item in inStock])
+        self.fullMessage = "In Stock \n" + "\n".join([" ".join(item) for item in inStock])
     def splitMessage(self):
         print('Splitting Message\n')
     #found 1000 char to be not too long not to short
@@ -298,13 +300,31 @@ class sendMessage:
         if self.fullMessage:
             self.splitMessages.append(self.fullMessage)
 
-    def sendEmail(self, inStock):
+    def sendEmail(self, inStock,previous):
         #checks if anything is in stock
         if len(inStock) == 0:
+            Updated_previous = copy.deepcopy(inStock)
             print("nothing in stock")
-            return
+            return Updated_previous
+        #if there equal nothing to do
+        if inStock == previous:
+            print('same')
+            return copy.deepcopy(previous)
+        self.new = []
+        self.new.clear()
+        #if some items when out of stock it send all items that are in stock
+        if previous and len(inStock) < len(previous):
+            self.new = copy.deepcopy(inStock)
+        #only if there is a difference do we go thru and check
+        else:
+            for i in inStock:
+                if i not in previous:
+                    self.new.append(i)
+                    print(f'new device is {i}')
+        Updated_previous = copy.deepcopy(inStock)
         #creates the message
-        self.createMessage(inStock)
+
+        self.createMessage(self.new)
         #prepares to send and advises as much
         print('Sending Message')
         self.splitMessage()
@@ -323,6 +343,8 @@ class sendMessage:
                 time.sleep(5)
             except Exception as error:
                 print(error)
+                
+            return Updated_previous
 
 def main():
     print(len(website))
@@ -332,7 +354,6 @@ def main():
     message =sendMessage()
     while True:
         site.Run(previous)
-        previous = site.Instock
-        message.sendEmail(site.Instock)
-        time.sleep(60)
+        previous = message.sendEmail(site.Instock,previous)
+        time.sleep(30)
 main()
