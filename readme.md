@@ -8,7 +8,7 @@ This project is a Python-based web scraping tool designed to monitor stock avail
     - Canada Computers
     - Memory Express
     - Vuugo
-    - PC-Canada
+    - PC Canada
     - Best Buy Canada
 
 - **Headless Browsing**: Uses Selenium with a headless Chrome browser to bypass anti-scraping measures (e.g., Cloudflare).
