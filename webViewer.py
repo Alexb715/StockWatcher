@@ -347,7 +347,7 @@ class sendMessage:
             except Exception as error:
                 print(error)
                 
-            return Updated_previous
+        return Updated_previous
 
 def main():
     print(len(website))
