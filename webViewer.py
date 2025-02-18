@@ -114,33 +114,37 @@ class web:
                 self.Instock.append((title,price,url))
     def checkForStockedItems(self):
         for count, data in self.webData.items():
-            if 'Canada Computers' in data.title.text:
-                self.forCC(data)
-                print("Running CanadaComputers Website\n")
-                continue
-            if 'Newegg' in data.title.text:     
-                print("Running Newegg Website\n")   
-                self.forNewegg(data)
-                continue
-            if 'Memory' in data.title.text:
-                #error 403 need to bypass
-                print('Running Memory Express\n')
-                self.forMemory(data)
-                continue
-            if 'Vuugo' in data.title.text:
-                print('Running Vugoo\n')
-                self.forVugoo(data)
-                continue
-            if 'PC-Canada.com' in data.title.text:
-                print("Running PC-Canada\n")
-                self.forCP(data)
-                continue
-            if"Best Buy" in data.title.text:
-                print("Running BestBuy\n")
-                self.forBB(data)
+            if data.title:
+                if 'Canada Computers' in data.title.text:
+                    self.forCC(data)
+                    print("Running CanadaComputers Website\n")
+                    continue
+                if 'Newegg' in data.title.text:     
+                    print("Running Newegg Website\n")   
+                    self.forNewegg(data)
+                    continue
+                if 'Memory' in data.title.text:
+                    #error 403 need to bypass
+                    print('Running Memory Express\n')
+                    self.forMemory(data)
+                    continue
+                if 'Vuugo' in data.title.text:
+                    print('Running Vugoo\n')
+                    self.forVugoo(data)
+                    continue
+                if 'PC-Canada.com' in data.title.text:
+                    print("Running PC-Canada\n")
+                    self.forCP(data)
+                    continue
+                if"Best Buy" in data.title.text:
+                    print("Running BestBuy\n")
+                    self.forBB(data)
+                    continue
+                else:
+                    print("Unknown Website Please Edit and try again")
+                    print(data.title.string)
             else:
-                print("Unknown Website Please Edit and try again")
-                print(data.title.string)
+                print('title error')
     def Run(self,previous):
         self.webData.clear()
         self.GetData()
