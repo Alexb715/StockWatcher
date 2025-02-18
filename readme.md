@@ -83,7 +83,7 @@ sender@example.com
 
 **Install ChromeDriver**:
 
-- For x86_64 systems, the script will automatically install ChromeDriver using webdriver_manager.
+- For x86_64 systems, manually install Chrome and the script will automatically install ChromeDriver using webdriver_manager.
 
 - For ARM64 systems, manually install Chromium and its corresponding chromedriver:
     ```bash
