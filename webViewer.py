@@ -20,10 +20,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium_stealth import stealth
-website = {r'https://www.newegg.ca/p/pl?N=100007708%20601469156&PageSize=96&Order=1', r'https://www.canadacomputers.com/en/search?s=rtx+5070+ti', r'https://www.memoryexpress.com/Category/VideoCards?FilterID=1c84b44a-7d8b-bfad-8f43-f0cbe5b89a34&Sort=Price&PageSize=120',
-           r'https://www.canadacomputers.com/en/search?s=rtx+5080', r'https://www.vuugo.com/category/video-cards-563/?min-price=0&max-price=10700&ordering=newest&GPU=GeForce+RTX+5000+Series',r'https://www.canadacomputers.com/en/search?s=rtx+5070',
-           r'https://www.bestbuy.ca/en-ca/collection/nvidia-founders-edition/412549?icmp=computing_nvidia_graphic_cards_ssc_category_icon_founders_edition',r'https://www.pc-canada.com/?query=rtx%205070%20ti&productType=Graphic%20Card',
-           r'https://www.bestbuy.ca/en-ca/collection/nvidia-graphic-cards-rtx-50-series/bltbd7cf78bd1d558ef?sort=priceLowToHigh',r'https://www.pc-canada.com/?query=rtx%205070&productType=Graphic%20Card',r'https://www.vuugo.com/category/video-cards-563/?min-price=0&max-price=2202&ordering=newest&GPU=GeForce+RTX+4000+Series&GPU=GeForce+RTX+5000+Series'}
+#websites for rtx 5000
+website = {r'https://www.canadacomputers.com/en/search?s=RTX+5070+ti',r'https://www.newegg.ca/p/pl?N=100007708%20601469156&PageSize=96',r'https://www.vuugo.com/category/video-cards-563/?min-price=0&max-price=4345&ordering=price-asc&GPU=GeForce+RTX+5000+Series&page=1'
+           ,r'https://www.bestbuy.ca/en-ca/collection/nvidia-graphic-cards-rtx-50-series/bltbd7cf78bd1d558ef?icmp=computing_evergreen_nvidia_graphics_cards_ssc_sbc_50_series',r'https://www.canadacomputers.com/en/search?s=RTX+5070',r'https://www.vuugo.com/category/video-cards-563/?min-price=0&max-price=4345&ordering=price-asc&GPU=GeForce+RTX+5000+Series&page=2',
+           r'https://www.memoryexpress.com/Category/VideoCards?FilterID=33ae1bda-7518-1d26-f09c-bce31c05cd1f&PageSize=120',r'https://www.canadacomputers.com/en/search?s=RTX+5080',r'https://www.pc-canada.com/?query=GDDR7',r'https://www.canadacomputers.com/en/search?s=RTX+5090'}
 class web:
 
     def __init__(self):
@@ -160,20 +160,27 @@ class web:
         #passes thru all url in list above
         for url in website:
             if'bestbuy' not in url:
-                response = requests.get(url,headers=self.headerForRequests)
-                if response.status_code == 200:
-                #make it in a soup format
-                    soup = BeautifulSoup(response.content, 'html.parser')
-                    soup.prettify()
-                #adds it to a table
-                    self.webData[count] = soup  # Store the parsed data by count
-                    count += 1
-                elif response.status_code == 403:
-                #goes thru headless to mitigate cloudflare
-                    self.webData[count] = self.goThruHeadless(url)
-                    count+=1
-                else:
-                    print(f"Failed to fetch data from {url} response code {response.status_code}")
+                try:
+                    response = requests.get(url,headers=self.headerForRequests)
+                except requests.exceptions.RequestException as e:
+                    print(f"Error Produced: {e}")
+                    continue
+                try:
+                    if response.status_code == 200:
+                    #make it in a soup format
+                        soup = BeautifulSoup(response.content, 'html.parser')
+                        soup.prettify()
+                    #adds it to a table
+                        self.webData[count] = soup  # Store the parsed data by count
+                        count += 1
+                    elif response.status_code == 403:
+                    #goes thru headless to mitigate cloudflare
+                        self.webData[count] = self.goThruHeadless(url)
+                        count+=1
+                    else:
+                        print(f"Failed to fetch data from {url} response code {response.status_code}")
+                except Exception as e:
+                    print(f"Error Produced: {e}")
             elif 'bestbuy' in url:
                 self.webData[count] = self.goThruHeadless(url)
                 count+=1
