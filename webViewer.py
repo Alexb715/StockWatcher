@@ -114,7 +114,7 @@ class web:
                 self.Instock.append((title,price,url))
     def checkForStockedItems(self):
         for count, data in self.webData.items():
-            if data.title:
+            if data and data.title:
                 if 'Canada Computers' in data.title.text:
                     self.forCC(data)
                     print("Running CanadaComputers Website\n")
