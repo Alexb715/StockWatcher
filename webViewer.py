@@ -21,9 +21,9 @@ from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium_stealth import stealth
 #websites for rtx 5000
-website = {r'https://www.canadacomputers.com/en/search?s=RTX+5070+ti',r'https://www.newegg.ca/p/pl?N=100007708%20601469156&PageSize=96',r'https://www.vuugo.com/category/video-cards-563/?min-price=0&max-price=4345&ordering=price-asc&GPU=GeForce+RTX+5000+Series&page=1'
-           ,r'https://www.bestbuy.ca/en-ca/collection/nvidia-graphic-cards-rtx-50-series/bltbd7cf78bd1d558ef?icmp=computing_evergreen_nvidia_graphics_cards_ssc_sbc_50_series',r'https://www.canadacomputers.com/en/search?s=RTX+5070',r'https://www.vuugo.com/category/video-cards-563/?min-price=0&max-price=4345&ordering=price-asc&GPU=GeForce+RTX+5000+Series&page=2',
-           r'https://www.memoryexpress.com/Category/VideoCards?FilterID=33ae1bda-7518-1d26-f09c-bce31c05cd1f&PageSize=120',r'https://www.canadacomputers.com/en/search?s=RTX+5080',r'https://www.pc-canada.com/?query=GDDR7',r'https://www.canadacomputers.com/en/search?s=RTX+5090'}
+website = {r'https://www.newegg.ca/p/pl?N=100007708%20601469156&PageSize=96',r'https://www.vuugo.com/category/video-cards-563/?min-price=0&max-price=4345&ordering=price-asc&GPU=GeForce+RTX+5000+Series&page=1'
+           ,r'https://www.bestbuy.ca/en-ca/collection/nvidia-graphic-cards-rtx-50-series/bltbd7cf78bd1d558ef?icmp=computing_evergreen_nvidia_graphics_cards_ssc_sbc_50_series',r'https://www.vuugo.com/category/video-cards-563/?min-price=0&max-price=4345&ordering=price-asc&GPU=GeForce+RTX+5000+Series&page=2',
+           r'https://www.pc-canada.com/?query=GDDR7',r'https://www.memoryexpress.com/Category/VideoCards?FilterID=1c84b44a-7d8b-bfad-8f43-f0cbe5b89a34&PageSize=120',r'https://www.canadacomputers.com/en/914/graphics-cards?q=GPU-GeForce+RTX+5070+Ti-GeForce+RTX+4080+Super-GeForce+RTX+4070+Ti+Super&order=product.price.desc'}
 class web:
 
     def __init__(self):
