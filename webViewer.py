@@ -105,7 +105,7 @@ class web:
     
     def forBB(self,data):
         for Instock in data.find_all('span',class_='container_1DAvI'):
-            if Instock.text in ['Available to ship', 'Available for backorder']:
+            if Instock.text in ['Available to ship']:
                 parent = Instock.find_parent('a',class_='link_3hcyN inline-block h-full w-full focus-visible-outline-2')
                 title = parent.find('h3',class_="productItemName_3IZ3c").text
                 price = parent.find('div',class_='productPricingContainer_3gTS3').find('span').find('span').text
